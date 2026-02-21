@@ -22,6 +22,9 @@ class Report(db.Model):
     status = db.Column(db.String(20), default="Reported")
     tracking_id = db.Column(db.String(20), unique=True)
     date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    # New fields for geo-location mapping
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
 
 # 3. Initialize Database
 with app.app_context():
@@ -42,11 +45,14 @@ def submit_report():
     t_id = f"US-2026-{random.randint(1000, 9999)}"
     
     new_report = Report(
-        issue_type=data['issueType'],
-        ward=data['ward'],
-        area=data['areaName'],
-        severity=data['severity'],
-        tracking_id=t_id
+        issue_type=data.get('issueType'),
+        ward=data.get('ward'),
+        area=data.get('areaName'),
+        severity=data.get('severity'),
+        tracking_id=t_id,
+        # Capturing coordinates from the Leaflet map
+        latitude=data.get('lat'),
+        longitude=data.get('lng')
     )
     
     db.session.add(new_report)
@@ -63,6 +69,8 @@ def track_report(tracking_id):
             "status": report.status,
             "issue": report.issue_type,
             "area": report.area,
+            "lat": report.latitude,
+            "lng": report.longitude,
             "date": report.date_created.strftime("%Y-%m-%d")
         })
     return jsonify({"error": "ID not found"}), 404
