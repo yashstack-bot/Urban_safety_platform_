@@ -1,22 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Urban Safe | Bridging Citizens & Officials</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
    <style>
-    /* 1. Base Layout & Scroll Behavior */
     html { scroll-behavior: smooth; }
     
     body {
-        /* Full-site background image related to Urban Safety */
         background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), 
                     url('https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=1920&auto=format&fit=crop');
         background-size: cover;
@@ -25,9 +23,10 @@
         color: white;
         margin: 0;
         padding: 0;
+        overflow-x: hidden; /* Prevent horizontal scrolling on mobile */
     }
 
-    /* 2. Enhanced Glassmorphism Core */
+    /* Glassmorphism Core */
     .glass-effect {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(12px);
@@ -46,7 +45,7 @@
         padding: 2rem;
     }
 
-    /* 3. Form Input Styling */
+    /* Form Styling */
     input, select {
         background: rgba(255, 255, 255, 0.2) !important;
         color: white !important;
@@ -55,105 +54,83 @@
     input::placeholder { color: rgba(255, 255, 255, 0.6); }
     option { background: #1e3a8a; color: white; }
 
-    /* 4. Base Map Styling */
     #map {
-        height: 400px; /* Default for Desktop */
+        height: 400px;
         width: 100%;
         border-radius: 1rem;
-        z-index: 1; /* Reset z-index for better overlay handling */
+        z-index: 1;
     }
 
-    /* 5. Scroll Animations */
+    /* Responsive Overrides */
+    @media (max-width: 768px) {
+        #map { height: 280px; }
+        .text-6xl { font-size: 2.5rem; line-height: 1.1; }
+        .full-screen { padding: 1rem; }
+        .glass-effect { padding: 1.5rem !important; }
+    }
+
+    /* Mobile Sidebar Menu Logic */
+    #mobile-menu {
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+    }
+    #mobile-menu.active {
+        transform: translateX(0);
+    }
+
     .reveal-footer {
         opacity: 0;
         transform: translateY(50px) scale(0.9);
         transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .reveal-footer.active {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-
-    /* --- 6. RESPONSIVE DESIGN --- */
-
-    /* For Tablets and Mobile Devices (MD and smaller) */
-    @media (max-width: 768px) {
-        #map {
-            height: 300px; /* Smaller map for better scrolling on mobile */
-        }
-
-        .container {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-
-        /* Stack the Authority Analytics cards vertically on mobile */
-        .grid-cols-2 {
-            grid-template-columns: 1fr !important;
-        }
-
-        /* Adjust large text sizes for small screens */
-        .text-6xl {
-            font-size: 3rem; 
-        }
-
-        .full-screen {
-            padding: 1rem;
-        }
-    }
-
-    /* For Very Small Phones (SM) */
-    @media (max-width: 480px) {
-        #map {
-            height: 250px;
-        }
-
-        h1 {
-            font-size: 1.8rem !important;
-        }
-
-        /* Ensure the stepper circles don't overlap text */
-        .step-circle {
-            width: 40px !important;
-            height: 40px !important;
-        }
-
-        .glass-effect {
-            padding: 1.5rem !important;
-        }
-    }
+    .reveal-footer.active { opacity: 1; transform: translateY(0) scale(1); }
 </style>
 </head>
 <body>
 
-    <nav class="bg-blue-900/40 backdrop-blur-md p-4 shadow-md sticky top-0 z-50">
+    <nav class="bg-blue-900/60 backdrop-blur-lg p-4 shadow-md sticky top-0 z-[100]">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold italic tracking-wider">URBAN SAFE</h1>
-            <div class="space-x-6 hidden md:flex">
-                <a href="#report" class="hover:text-blue-300 ">Report Issue</a>
+            
+            <div class="space-x-6 hidden md:flex items-center">
+                <a href="#report" class="hover:text-blue-300">Report Issue</a>
                 <a href="#track" class="hover:text-blue-300">Track Status</a>
-                <a href="/admin-panel" class="bg-blue-600/80 px-4 py-2 rounded-lg hover:bg-blue-500">Authority Login</a>
+                <a href="/admin-panel" class="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-500">Authority Login</a>
             </div>
+
+            <button id="menu-toggle" class="md:hidden text-2xl focus:outline-none">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </nav>
 
-    <main id="report" class="full-screen">
-        <div class="text-center mb-12">
-            <h2 class="text-6xl font-black mb-4 tracking-tight drop-shadow-lg">Bridging Citizens and City Officials</h2>
-            <p class="text-xl opacity-90 max-w-3xl mx-auto">A transparent platform to report safety hazards and monitor real-time community improvements.</p>
+    <div id="mobile-menu" class="fixed top-0 right-0 h-full w-64 bg-blue-950 z-[110] shadow-2xl p-8 md:hidden">
+        <button id="close-menu" class="text-3xl mb-8"><i class="fas fa-times"></i></button>
+        <div class="flex flex-col space-y-8 text-xl font-bold">
+            <a href="#report" class="mobile-link">Report Issue</a>
+            <a href="#track" class="mobile-link">Track Status</a>
+            <hr class="border-white/10">
+            <a href="/admin-panel" class="text-blue-400">Authority Login</a>
+        </div>
+    </div>
+
+    <main id="report" class="full-screen pt-20">
+        <div class="text-center mb-10 px-4">
+            <h2 class="text-4xl md:text-6xl font-black mb-4 tracking-tight drop-shadow-lg">Bridging Citizens and City Officials</h2>
+            <p class="text-lg md:text-xl opacity-90 max-w-3xl mx-auto">A transparent platform to report safety hazards and monitor real-time community improvements.</p>
         </div>
 
-        <div class="w-full max-w-7xl glass-effect p-12">
-            <h3 class="text-3xl font-bold mb-8 flex items-center justify-center">
-                <i class="fas fa-bullhorn mr-4 text-4xl text-blue-400"></i> Report Safety Issue
+        <div class="w-full max-w-7xl glass-effect p-6 md:p-12">
+            <h3 class="text-2xl md:text-3xl font-bold mb-8 flex items-center justify-center">
+                <i class="fas fa-bullhorn mr-4 text-blue-400"></i> Report Safety Issue
             </h3>
             
-            <form class="space-y-8" id="reportForm">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <form class="space-y-6 md:space-y-8" id="reportForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                     <div class="space-y-6">
                         <div>
                             <label class="block text-lg font-bold mb-2">1. Select Issue Type</label>
-                            <select id="issueType" class="w-full p-4 rounded-xl text-lg focus:ring-2 focus:ring-blue-400 outline-none">
+                            <select id="issueType" class="w-full p-4 rounded-xl text-lg outline-none">
                                 <option>Broken Streetlights</option>
                                 <option>Damaged Roads</option>
                                 <option>Unsafe Crossings</option>
@@ -162,7 +139,7 @@
                         </div>
                         <div>
                             <label class="block text-lg font-bold mb-2">2. Location Details</label>
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <select id="ward" class="p-4 rounded-xl text-lg">
                                     <option>North Ward</option>
                                     <option>South Ward</option>
@@ -189,113 +166,111 @@
 
                     <div class="col-span-1 md:col-span-2">
                         <label class="block text-lg font-bold mb-2 text-blue-300">Pin Location on Map</label>
-                        <div id="map" class="h-[400px] w-full rounded-xl border border-white/20 shadow-inner"></div>
+                        <div id="map" class="border border-white/20 shadow-inner"></div>
                         <input type="hidden" id="lat" name="lat">
                         <input type="hidden" id="lng" name="lng">
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-2xl font-black py-6 rounded-2xl shadow-2xl transition-all transform hover:scale-[1.01]">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xl md:text-2xl font-black py-5 md:py-6 rounded-2xl shadow-2xl transition-all">
                     Submit Report & Get Tracking ID
                 </button>
             </form>
-            <p id="submissionResult" class="mt-6 text-center text-2xl font-bold text-blue-300 hidden"></p>
-        </div>
-
-        <div class="mt-10 animate-bounce">
-            <a href="#track" class="text-white text-4xl"><i class="fas fa-chevron-down"></i></a>
+            <p id="submissionResult" class="mt-6 text-center text-xl font-bold text-blue-300 hidden"></p>
         </div>
     </main>
-    <hr style="color: black;">
 
-    <div id="track" class="full-screen">
-        <div class="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full max-w-7xl">
+    <div id="track" class="full-screen py-20 px-4">
+        <div class="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-start w-full max-w-7xl">
             
-            <section class="space-y-10 glass-effect p-12 h-full flex flex-col justify-center">
-                <h3 class="text-4xl font-black mb-4">Live Status Tracker</h3>
-                <div class="flex h-20">
-                    <input type="text" id="trackingInput" placeholder="Enter Tracking ID (e.g. US-2026-1234)" class="flex-grow p-6 text-xl rounded-l-2xl outline-none">
-                    <button id="trackBtn" class="bg-blue-600 text-white px-10 text-xl font-bold rounded-r-2xl hover:bg-blue-400 transition-all">Track</button>
+            <section class="space-y-10 glass-effect p-8 md:p-12 w-full">
+                <h3 class="text-3xl md:text-4xl font-black">Live Status Tracker</h3>
+                <div class="flex flex-col sm:flex-row w-full overflow-hidden rounded-2xl">
+                    <input type="text" id="trackingInput" placeholder="Enter Tracking ID" class="flex-grow p-5 text-lg outline-none rounded-t-2xl sm:rounded-l-2xl sm:rounded-tr-none">
+                    <button id="trackBtn" class="bg-blue-600 text-white p-5 text-lg font-bold hover:bg-blue-400 transition-all rounded-b-2xl sm:rounded-r-2xl sm:rounded-bl-none">Track</button>
                 </div>
 
                 <div class="space-y-8" id="stepperContainer">
                     <div class="flex items-center opacity-40 transition-all duration-500" id="step1">
-                        <div class="step-circle w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-xl font-black mr-6 border border-white/30">1</div>
+                        <div class="step-circle w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-full flex items-center justify-center text-lg font-black mr-4 md:mr-6 border border-white/30">1</div>
                         <div>
-                            <h4 class="text-xl font-bold">Reported</h4>
-                            <p class="opacity-70 text-sm">Issue submitted by citizen.</p>
+                            <h4 class="text-lg font-bold">Reported</h4>
+                            <p class="opacity-70 text-xs md:text-sm">Issue submitted by citizen.</p>
                         </div>
                     </div>
                     <div class="flex items-center opacity-40 transition-all duration-500" id="step2">
-                        <div class="step-circle w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-xl font-black mr-6 border border-white/30">2</div>
+                        <div class="step-circle w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-full flex items-center justify-center text-lg font-black mr-4 md:mr-6 border border-white/30">2</div>
                         <div>
-                            <h4 class="text-xl font-bold">Under Review</h4>
-                            <p class="opacity-70 text-sm">Evaluating severity and resources.</p>
+                            <h4 class="text-lg font-bold">Under Review</h4>
+                            <p class="opacity-70 text-xs md:text-sm">Evaluating severity and resources.</p>
                         </div>
                     </div>
                     <div class="flex items-center opacity-40 transition-all duration-500" id="step3">
-                        <div class="step-circle w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-xl font-black mr-6 border border-white/30">3</div>
+                        <div class="step-circle w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-full flex items-center justify-center text-lg font-black mr-4 md:mr-6 border border-white/30">3</div>
                         <div>
-                            <h4 class="text-xl font-bold">Assigned</h4>
-                            <p class="opacity-70 text-sm italic">Awaiting delegation.</p>
+                            <h4 class="text-lg font-bold">Assigned</h4>
+                            <p class="opacity-70 text-xs md:text-sm italic">Awaiting delegation.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="flex flex-col justify-center space-y-12">
-                <h3 class="text-4xl font-black flex items-center">
-                    <i class="fas fa-chart-line mr-6 text-blue-400"></i> Authority Analytics
+            <section class="flex flex-col space-y-10 w-full">
+                <h3 class="text-3xl md:text-4xl font-black flex items-center">
+                    <i class="fas fa-chart-line mr-4 text-blue-400"></i> Authority Analytics
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
-                    <div class="glass-effect p-10 text-center border-b-8 border-blue-500">
-                        <p class="text-sm uppercase tracking-widest opacity-60 mb-2 font-bold">Area Safety Score </p>
-                        <p class="text-6xl font-black text-blue-400">84%</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+                    <div class="glass-effect p-8 md:p-10 text-center border-b-8 border-blue-500">
+                        <p class="text-xs uppercase tracking-widest opacity-60 mb-2 font-bold">Area Safety Score</p>
+                        <p id="safetyScore" class="text-5xl md:text-6xl font-black text-blue-400">84%</p>
                     </div>
-                    <div class="glass-effect p-10 text-center border-b-8 border-green-500">
-                        <p class="text-sm uppercase tracking-widest opacity-60 mb-2 font-bold">Resolution Time</p>
-                        <p class="text-6xl font-black text-green-400">3.2 Days</p>
+                    <div class="glass-effect p-8 md:p-10 text-center border-b-8 border-green-500">
+                        <p class="text-xs uppercase tracking-widest opacity-60 mb-2 font-bold">Resolution Time</p>
+                        <p id="resTime" class="text-5xl md:text-6xl font-black text-green-400">3.2 Days</p>
                     </div>
                 </div>
-                <p class="text-xl italic opacity-100 text-center font-serif ">
-                    Bridging the gap between civic voice and urban action.
+                <p class="text-lg italic opacity-90 text-center font-serif px-4">
+                    "Bridging the gap between civic voice and urban action."
                 </p>
             </section>
         </div>
     </div>
 
     <footer class="bg-black/90 pt-16 pb-10 text-center border-t border-white/10 mt-20">
-    <div class="container mx-auto px-4 reveal-footer" id="footerProfile">
-        <div class="flex flex-col items-center mb-10">
-            <div class="w-32 h-32 rounded-full border-4 border-blue-500 overflow-hidden mb-4 shadow-2xl">
-                <img src="{{ url_for('static', filename='assets/YASH.jpeg') }}" alt="Yash Gupta" class="w-full h-full object-cover">
+        <div class="container mx-auto px-4 reveal-footer" id="footerProfile">
+            <div class="flex flex-col items-center mb-10">
+                <div class="w-32 h-32 rounded-full border-4 border-blue-500 overflow-hidden mb-4 shadow-2xl">
+                    <img src="{{ url_for('static', filename='assets/YASH.jpeg') }}" alt="Yash Gupta" class="w-full h-full object-cover">
+                </div>
+                
+                <h2 class="text-3xl font-black tracking-tight mb-2 uppercase">Yash Gupta</h2>
+                <p class="text-blue-400 font-medium mb-6 uppercase tracking-widest text-sm">Full Stack Developer & AI Enthusiast</p>
+                
+                <div class="flex space-x-8 justify-center mb-10">
+                    <a href="https://github.com/yashstack-bot" target="_blank" class="text-4xl hover:text-blue-400 transition-all"><i class="fab fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/yash-gupta-423820363" target="_blank" class="text-4xl hover:text-blue-400 transition-all"><i class="fab fa-linkedin"></i></a>
+                    <a href="mailto:gyash7068@gmail.com" class="text-4xl hover:text-blue-400 transition-all"><i class="fas fa-envelope"></i></a>
+                </div>
             </div>
-            
-            <h2 class="text-3xl font-black tracking-tight mb-2">YASH GUPTA</h2>
-            <p class="text-blue-400 font-medium mb-6 uppercase tracking-widest text-sm">Full Stack Developer & AI Enthusiast</p>
-            
-            <h3 class="text-xl font-bold mb-4">Get in Touch</h3>
-            <div class="flex space-x-8 justify-center mb-10">
-                <a href="https://github.com/yashstack-bot" target="_blank" class="text-4xl hover:text-blue-400 transition-colors">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="https://www.linkedin.com/in/yash-gupta-423820363" target="_blank" class="text-4xl hover:text-blue-400 transition-colors">
-                    <i class="fab fa-linkedin"></i>
-                </a>
-                <a href="mailto:gyash7068@gmail.com" class="text-4xl hover:text-blue-400 transition-colors">
-                    <i class="fas fa-envelope"></i>
-                </a>
+            <div class="border-t border-white/10 pt-8">
+                <p class="text-[10px] md:text-xs opacity-50 font-bold uppercase tracking-widest">
+                    &copy; 2026 Urban Safety Management System. Built for Placements.
+                </p>
             </div>
         </div>
+    </footer>
 
-        <div class="border-t border-white/10 pt-8">
-            <p class="text-xs opacity-50 font-bold uppercase tracking-widest">
-                &copy; 2026 Urban Safety Management System.
-            </p>
-        </div>
-    </div>
-</footer>
+    <script>
+        // Mobile Sidebar Toggle Logic
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenu = document.getElementById('close-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
 
+        menuToggle.addEventListener('click', () => mobileMenu.classList.add('active'));
+        closeMenu.addEventListener('click', () => mobileMenu.classList.remove('active'));
+        mobileLinks.forEach(link => link.addEventListener('click', () => mobileMenu.classList.remove('active')));
+    </script>
     <script src="static/js/script.js"></script>
 </body>
 </html>
