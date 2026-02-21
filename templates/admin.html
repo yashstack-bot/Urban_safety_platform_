@@ -1,63 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Authority Dashboard | Urban Safe</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        body { background: #0f172a; color: white; padding: 2rem; font-family: sans-serif; }
-        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; }
+        /* Shared Background with Main Page */
+        body { 
+            background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.95)), 
+                        url('https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white; 
+            padding: 1rem; 
+            font-family: sans-serif; 
+            min-height: 100vh;
+        }
+
+        /* Enhanced Glassmorphism */
+        .glass { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 1.5rem; 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Custom Scrollbar for the Table */
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 6px;
+        }
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 0.5rem; }
+            h1 { font-size: 1.8rem !important; margin-bottom: 1.5rem !important; }
+            .glass { padding: 1rem !important; border-radius: 1rem; }
+            td, th { padding: 0.75rem 0.5rem !important; font-size: 0.85rem; }
+            .btn-text { display: none; } /* Hide text on mobile icons to save space */
+        }
     </style>
 </head>
-<body>
-    <div class="container mx-auto">
-        <h1 class="text-4xl font-bold mb-8 text-blue-400">Authority Analytics Dashboard</h1>
-        
-        <div class="glass p-8 overflow-x-auto">
-            <table class="w-full text-left">
-                <thead>
-                    <tr class="border-b border-white/20 text-blue-300">
-                        <th class="p-4">Tracking ID</th>
-                        <th class="p-4">Issue</th>
-                        <th class="p-4">Area</th>
-                        <th class="p-4">Status</th>
-                        <th class="p-4">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for report in reports %}
-                    <tr class="border-b border-white/5 hover:bg-white/5">
-                        <td class="p-4">{{ report.tracking_id }}</td>
-                        <td class="p-4">{{ report.issue_type }}</td>
-                        <td class="p-4">{{ report.area }}</td>
-                        <td class="p-4">
-                            <span class="px-3 py-1 rounded-full text-xs font-bold 
-                                {% if report.status == 'Reported' %} bg-green-600 
-                                {% elif report.status == 'Under Review' %} bg-blue-600 
-                                {% else %} bg-orange-600 {% endif %}">
-                                {{ report.status }}
-                            </span>
-                        </td>
-                        <td class="p-4">
-                            <button onclick="updateStatus({{ report.id }}, 'Under Review')" class="text-xs bg-blue-500 hover:bg-blue-400 p-2 rounded">Review</button>
-                            <button onclick="updateStatus({{ report.id }}, 'Assigned')" class="text-xs bg-orange-500 hover:bg-orange-400 p-2 rounded ml-2">Assign</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<body class="flex flex-col items-center">
+    <div class="container mx-auto w-full max-w-6xl mt-6 md:mt-10">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 px-2">
+            <h1 class="text-3xl md:text-4xl font-black text-blue-400 tracking-tight">
+                <i class="fas fa-shield-halved mr-3"></i>Authority Dashboard
+            </h1>
+            <a href="/" class="text-sm bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all border border-white/10">
+                <i class="fas fa-arrow-left mr-2"></i>Exit to Portal
+            </a>
         </div>
+        
+        <div class="glass p-4 md:p-8 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left min-w-[600px]">
+                    <thead>
+                        <tr class="border-b border-white/20 text-blue-300 uppercase text-xs tracking-widest font-bold">
+                            <th class="p-4">ID</th>
+                            <th class="p-4">Issue Type</th>
+                            <th class="p-4">Area</th>
+                            <th class="p-4 text-center">Lifecycle Status</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                            <td class="p-4 font-mono text-blue-200">{{ report.tracking_id }}</td>
+                            <td class="p-4 font-medium">{{ report.issue_type }}</td>
+                            <td class="p-4 opacity-80">{{ report.area }}</td>
+                            <td class="p-4 text-center">
+                                <span class="px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-tighter
+                                    {% if report.status == 'Reported' %} bg-green-600/80 
+                                    {% elif report.status == 'Under Review' %} bg-blue-600/80 
+                                    {% else %} bg-orange-600/80 {% endif %} shadow-lg">
+                                    {{ report.status }}
+                                </span>
+                            </td>
+                            <td class="p-4 text-right whitespace-nowrap">
+                                <button onclick="updateStatus({{ report.id }}, 'Under Review')" 
+                                        class="text-xs bg-blue-500 hover:bg-blue-400 p-2 rounded-lg transition-all shadow-md" 
+                                        title="Mark as Under Review">
+                                    <i class="fas fa-magnifying-glass md:mr-1"></i><span class="btn-text">Review</span>
+                                </button>
+                                <button onclick="updateStatus({{ report.id }}, 'Assigned')" 
+                                        class="text-xs bg-orange-500 hover:bg-orange-400 p-2 rounded-lg ml-2 transition-all shadow-md"
+                                        title="Assign to Team">
+                                    <i class="fas fa-user-check md:mr-1"></i><span class="btn-text">Assign</span>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if not reports %}
+            <div class="py-20 text-center opacity-40">
+                <i class="fas fa-inbox text-5xl mb-4"></i>
+                <p class="text-xl">No reports currently in the system.</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <p class="mt-8 text-center text-xs opacity-40 uppercase tracking-[0.2em]">
+            Urban Safe Administrative Oversight • 2026
+        </p>
     </div>
 
     <script>
+        // Production-ready Status Update
         async function updateStatus(id, newStatus) {
-            const response = await fetch(`/api/update-status/${id}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({new_status: newStatus})
-            });
-            if (response.ok) location.reload();
+            try {
+                const response = await fetch(`/api/update-status/${id}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({new_status: newStatus})
+                });
+                
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    const errorData = await response.json();
+                    alert("Error: " + (errorData.error || "Could not update status"));
+                }
+            } catch (err) {
+                console.error("Connection Error:", err);
+                alert("Server connection failed. Is app.py running?");
+            }
         }
     </script>
 </body>
