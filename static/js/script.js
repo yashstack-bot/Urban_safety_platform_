@@ -7,12 +7,13 @@
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
 /**
- * 2. Map Initialization
- * Renders the interactive map to help citizens pinpoint hazards.
+ * 2. Map Initialization & Dynamic Analytics
+ * Renders the interactive map and simulates real-time safety data based on location.
  */
-// Initialize Map (Centered on a sample city coordinate)
+// Initialize Map (Centered on Bhopal, Madhya Pradesh)
 const map = L.map('map').setView([23.2599, 77.4126], 13); 
 
+// Ensure map renders correctly in wider containers
 setTimeout(() => {
     map.invalidateSize();
 }, 100);
@@ -23,16 +24,41 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let marker;
 
-// Capture click location to pinpoint the safety issue
+// Capture click location to pinpoint the safety issue and update live analytics
 map.on('click', function(e) {
+    // Marker Management
     if (marker) {
         marker.setLatLng(e.latlng);
     } else {
         marker = L.marker(e.latlng, {draggable: true}).addTo(map);
     }
+    
     // Store coordinates in hidden inputs for the backend payload
     document.getElementById('lat').value = e.latlng.lat;
     document.getElementById('lng').value = e.latlng.lng;
+
+    // --- NEW DYNAMIC ANALYTICS LOGIC ---
+    // Demonstrates probability-driven data simulation based on geospatial coordinates
+    const seed = e.latlng.lat + e.latlng.lng;
+    
+    // Simulate a safety score between 60% and 100%
+    const dynamicScore = Math.floor((Math.abs(Math.sin(seed)) * 40) + 60); 
+    // Simulate resolution time between 1 and 6 days
+    const dynamicDays = ((Math.abs(Math.cos(seed)) * 5) + 1).toFixed(1);
+
+    // Update the UI Analytics section immediately
+    const scoreElem = document.getElementById('safetyScore');
+    const timeElem = document.getElementById('resTime');
+
+    if (scoreElem && timeElem) {
+        scoreElem.innerText = dynamicScore + "%";
+        timeElem.innerText = dynamicDays + " Days";
+        
+        // Visual feedback: Add a small pop effect when data changes
+        const analyticsCard = scoreElem.parentElement;
+        analyticsCard.classList.add('scale-105', 'transition-transform');
+        setTimeout(() => analyticsCard.classList.remove('scale-105'), 200);
+    }
 });
 
 /**
@@ -42,14 +68,14 @@ map.on('click', function(e) {
 document.getElementById('reportForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    // Prepare data from form inputs including the new map coordinates
+    // Prepare data from form inputs including the coordinates captured from the map
     const payload = {
         issueType: document.getElementById('issueType').value,
         ward: document.getElementById('ward').value,
         areaName: document.getElementById('areaName').value,
         severity: document.getElementById('severity').value,
-        lat: document.getElementById('lat').value, // Captured from Map
-        lng: document.getElementById('lng').value  // Captured from Map
+        lat: document.getElementById('lat').value, 
+        lng: document.getElementById('lng').value
     };
 
     // UI Feedback: Disable button while processing
@@ -69,7 +95,7 @@ document.getElementById('reportForm').addEventListener('submit', async function(
 
         if (response.ok) {
             handleSuccess(result.tracking_id);
-            // Reset marker after successful submission
+            // Reset map marker after successful submission
             if (marker) {
                 map.removeLayer(marker);
                 marker = null;
@@ -150,7 +176,7 @@ function updateStepper(stepCount) {
 
         if (isActive) {
             step.classList.remove('opacity-40');
-            // Colors based on lifecycle stage
+            // Colors: Green for Reported, Blue for Review, Orange for Assigned
             const colors = ['#22c55e', '#2563eb', '#f97316'];
             circle.style.backgroundColor = colors[index];
             circle.style.boxShadow = `0 0 15px ${colors[index]}80`;
@@ -162,29 +188,50 @@ function updateStepper(stepCount) {
     });
 }
 
-// 6. Initialize Event Listeners
+/**
+ * 6. Initialize Event Listeners & Footer Animation
+ */
 document.addEventListener('DOMContentLoaded', () => {
     // Connect the track button manually
     const trackBtn = document.getElementById('trackBtn');
     if (trackBtn) {
         trackBtn.addEventListener('click', trackIssue);
     }
+
+    // Initialize Footer Profile Pop-up Animation
+    const footerProfile = document.getElementById('footerProfile');
+    if (footerProfile) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    footerProfile.classList.add('active');
+                }
+            });
+        }, { threshold: 0.2 });
+
+        observer.observe(footerProfile);
+    }
 });
 
 /**
- * Footer Animation Trigger
- * Uses Intersection Observer to detect when the user scrolls to the bottom
+ * Update Analytics based on user input
+ * This simulates the "Intelligence" layer for your hackathon demo.
  */
-document.addEventListener('DOMContentLoaded', () => {
-    const footerProfile = document.getElementById('footerProfile');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                footerProfile.classList.add('active');
-            }
-        });
-    }, { threshold: 0.2 });
+function refreshAnalytics() {
+    // Generate a pseudo-random score between 60-95%
+    const dynamicScore = Math.floor(Math.random() * 35) + 60;
+    // Generate a resolution time between 1-5 days
+    const dynamicDays = (Math.random() * 4 + 1).toFixed(1);
 
-    observer.observe(footerProfile);
-});
+    const scoreElem = document.getElementById('safetyScore');
+    const timeElem = document.getElementById('resTime');
+
+    if (scoreElem && timeElem) {
+        scoreElem.innerText = dynamicScore + "%";
+        timeElem.innerText = dynamicDays + " Days";
+        
+        // Add a visual 'pop' animation to show the judge it changed
+        scoreElem.parentElement.classList.add('scale-110', 'transition-transform');
+        setTimeout(() => scoreElem.parentElement.classList.remove('scale-110'), 200);
+    }
+}
