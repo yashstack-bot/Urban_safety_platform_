@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Safe | Bridging Citizens & Officials</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        html { scroll-behavior: smooth; }
+        
+        body {
+            /* Full-site background image related to Urban Safety */
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), 
+                        url('https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+        }
+
+        /* Glassmorphism: Removes solid boxes and lets the background show through */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+        }
+
+        .full-screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        /* Making inputs transparent to match the theme */
+        input, select {
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+        input::placeholder { color: rgba(255, 255, 255, 0.6); }
+        option { background: #1e3a8a; color: white; }
+    </style>
+</head>
+<body>
+
+    <nav class="bg-blue-900/40 backdrop-blur-md p-4 shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold italic tracking-wider">URBAN SAFE</h1>
+            <div class="space-x-6 hidden md:flex">
+                <a href="#report" class="hover:text-blue-300">Report Issue</a>
+                <a href="#track" class="hover:text-blue-300">Track Status</a>
+                <a href="/admin-panel" class="bg-blue-600/80 px-4 py-2 rounded-lg hover:bg-blue-500">Authority Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <main id="report" class="full-screen">
+        <div class="text-center mb-12">
+            <h2 class="text-6xl font-black mb-4 tracking-tight drop-shadow-lg">Bridging Citizens and City Officials</h2>
+            <p class="text-xl opacity-90 max-w-3xl mx-auto">A transparent platform to report safety hazards and monitor real-time community improvements.</p>
+        </div>
+
+        <div class="w-full max-w-6xl glass-effect p-12">
+            <h3 class="text-3xl font-bold mb-8 flex items-center justify-center">
+                <i class="fas fa-bullhorn mr-4 text-4xl text-blue-400"></i> Report Safety Issue
+            </h3>
+            
+            <form class="space-y-8" id="reportForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-lg font-bold mb-2">1. Select Issue Type</label>
+                            <select id="issueType" class="w-full p-4 rounded-xl text-lg focus:ring-2 focus:ring-blue-400 outline-none">
+                                <option>Broken Streetlights</option>
+                                <option>Damaged Roads</option>
+                                <option>Unsafe Crossings</option>
+                                <option>Other Hazards</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-lg font-bold mb-2">2. Location Details</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <select id="ward" class="p-4 rounded-xl text-lg">
+                                    <option>North Ward</option>
+                                    <option>South Ward</option>
+                                </select>
+                                <input type="text" id="areaName" placeholder="Area Name" class="p-4 rounded-xl text-lg">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-lg font-bold mb-2">3. Upload Evidence</label>
+                            <input type="file" class="w-full p-3 border-2 border-dashed border-white/30 rounded-xl cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="block text-lg font-bold mb-2">4. Severity Level</label>
+                            <select id="severity" class="w-full p-4 rounded-xl text-lg">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-2xl font-black py-6 rounded-2xl shadow-2xl transition-all transform hover:scale-[1.01]">
+                    Submit Report & Get Tracking ID
+                </button>
+            </form>
+            <p id="submissionResult" class="mt-6 text-center text-2xl font-bold text-blue-300 hidden"></p>
+        </div>
+
+        <div class="mt-10 animate-bounce">
+            <a href="#track" class="text-white text-4xl"><i class="fas fa-chevron-down"></i></a>
+        </div>
+    </main>
+
+    <div id="track" class="full-screen">
+        <div class="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full max-w-7xl">
+            
+            <section class="space-y-10 glass-effect p-12 h-full flex flex-col justify-center">
+                <h3 class="text-4xl font-black mb-4">Live Status Tracker</h3>
+                <div class="flex h-20">
+                    <input type="text" id="trackingInput" placeholder="Enter Tracking ID (e.g. US-2026-1234)" class="flex-grow p-6 text-xl rounded-l-2xl outline-none">
+                    <button id="trackBtn" class="bg-blue-600 text-white px-10 text-xl font-bold rounded-r-2xl hover:bg-blue-400 transition-all">Track</button>
+                </div>
+
+                <div class="space-y-8" id="stepperContainer">
+                    <div class="flex items-center opacity-40 transition-all duration-500" id="step1">
+                        <div class="step-circle w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-xl font-black mr-6 border border-white/30">1</div>
+                        <div>
+                            <h4 class="text-xl font-bold">Reported</h4>
+                            <p class="opacity-70 text-sm">Issue submitted by citizen.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center opacity-40 transition-all duration-500" id="step2">
+                        <div class="step-circle w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-xl font-black mr-6 border border-white/30">2</div>
+                        <div>
+                            <h4 class="text-xl font-bold">Under Review</h4>
+                            <p class="opacity-70 text-sm">Evaluating severity and resources.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center opacity-40 transition-all duration-500" id="step3">
+                        <div class="step-circle w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-xl font-black mr-6 border border-white/30">3</div>
+                        <div>
+                            <h4 class="text-xl font-bold">Assigned</h4>
+                            <p class="opacity-70 text-sm italic">Awaiting delegation.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="flex flex-col justify-center space-y-12">
+                <h3 class="text-4xl font-black flex items-center">
+                    <i class="fas fa-chart-line mr-6 text-blue-400"></i> Authority Analytics
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="glass-effect p-10 text-center border-b-8 border-blue-500">
+                        <p class="text-sm uppercase tracking-widest opacity-60 mb-2 font-bold">Area Safety Score </p>
+                        <p class="text-6xl font-black text-blue-400">84%</p>
+                    </div>
+                    <div class="glass-effect p-10 text-center border-b-8 border-green-500">
+                        <p class="text-sm uppercase tracking-widest opacity-60 mb-2 font-bold">Resolution Time</p>
+                        <p class="text-6xl font-black text-green-400">3.2 Days</p>
+                    </div>
+                </div>
+                <p class="text-xl italic opacity-60 text-center font-serif">
+                    "Data-driven decisions create lasting safety improvements."
+                </p>
+            </section>
+        </div>
+    </div>
+
+    <footer class="bg-black/80 py-10 text-center">
+        <p class="text-sm opacity-50 font-bold uppercase tracking-widest">&copy; 2026 Urban Safety Management System.</p>
+    </footer>
+
+    <script src="static/js/script.js"></script>
+</body>
+</html>
