@@ -11,52 +11,60 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <style>
-        html { scroll-behavior: smooth; }
-        
-        body {
-            /* Full-site background image related to Urban Safety */
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), 
-                        url('https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=1920&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: white;
-        }
+   <style>
+    /* 1. Base Layout & Scroll Behavior */
+    html { scroll-behavior: smooth; }
+    
+    body {
+        /* Full-site background image related to Urban Safety */
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), 
+                    url('https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=1920&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: white;
+        margin: 0;
+        padding: 0;
+    }
 
-        /* Glassmorphism: Removes solid boxes and lets the background show through */
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 1.5rem;
-        }
+    /* 2. Enhanced Glassmorphism Core */
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
 
-        .full-screen {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-        }
+    .full-screen {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+    }
 
-        /* Making inputs transparent to match the theme */
-        input, select {
-            background: rgba(255, 255, 255, 0.2) !important;
-            color: white !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-        }
-        input::placeholder { color: rgba(255, 255, 255, 0.6); }
-        option { background: #1e3a8a; color: white; }
+    /* 3. Form Input Styling */
+    input, select {
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    }
+    input::placeholder { color: rgba(255, 255, 255, 0.6); }
+    option { background: #1e3a8a; color: white; }
 
-        /* Map styling to ensure it fits the glassmorphism theme */
-        #map {
-            z-index: 10;
-        }
+    /* 4. Base Map Styling */
+    #map {
+        height: 400px; /* Default for Desktop */
+        width: 100%;
+        border-radius: 1rem;
+        z-index: 1; /* Reset z-index for better overlay handling */
+    }
 
-        .reveal-footer {
+    /* 5. Scroll Animations */
+    .reveal-footer {
         opacity: 0;
         transform: translateY(50px) scale(0.9);
         transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -65,7 +73,56 @@
         opacity: 1;
         transform: translateY(0) scale(1);
     }
-    </style>
+
+    /* --- 6. RESPONSIVE DESIGN --- */
+
+    /* For Tablets and Mobile Devices (MD and smaller) */
+    @media (max-width: 768px) {
+        #map {
+            height: 300px; /* Smaller map for better scrolling on mobile */
+        }
+
+        .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        /* Stack the Authority Analytics cards vertically on mobile */
+        .grid-cols-2 {
+            grid-template-columns: 1fr !important;
+        }
+
+        /* Adjust large text sizes for small screens */
+        .text-6xl {
+            font-size: 3rem; 
+        }
+
+        .full-screen {
+            padding: 1rem;
+        }
+    }
+
+    /* For Very Small Phones (SM) */
+    @media (max-width: 480px) {
+        #map {
+            height: 250px;
+        }
+
+        h1 {
+            font-size: 1.8rem !important;
+        }
+
+        /* Ensure the stepper circles don't overlap text */
+        .step-circle {
+            width: 40px !important;
+            height: 40px !important;
+        }
+
+        .glass-effect {
+            padding: 1.5rem !important;
+        }
+    }
+</style>
 </head>
 <body>
 
@@ -190,7 +247,7 @@
                 <h3 class="text-4xl font-black flex items-center">
                     <i class="fas fa-chart-line mr-6 text-blue-400"></i> Authority Analytics
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
                     <div class="glass-effect p-10 text-center border-b-8 border-blue-500">
                         <p class="text-sm uppercase tracking-widest opacity-60 mb-2 font-bold">Area Safety Score </p>
                         <p class="text-6xl font-black text-blue-400">84%</p>
