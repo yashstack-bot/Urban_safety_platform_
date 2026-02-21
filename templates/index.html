@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Urban Safe | Bridging Citizens & Officials</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         html { scroll-behavior: smooth; }
         
@@ -45,6 +50,21 @@
         }
         input::placeholder { color: rgba(255, 255, 255, 0.6); }
         option { background: #1e3a8a; color: white; }
+
+        /* Map styling to ensure it fits the glassmorphism theme */
+        #map {
+            z-index: 10;
+        }
+
+        .reveal-footer {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+        transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .reveal-footer.active {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
     </style>
 </head>
 <body>
@@ -66,7 +86,7 @@
             <p class="text-xl opacity-90 max-w-3xl mx-auto">A transparent platform to report safety hazards and monitor real-time community improvements.</p>
         </div>
 
-        <div class="w-full max-w-6xl glass-effect p-12">
+        <div class="w-full max-w-7xl glass-effect p-12">
             <h3 class="text-3xl font-bold mb-8 flex items-center justify-center">
                 <i class="fas fa-bullhorn mr-4 text-4xl text-blue-400"></i> Report Safety Issue
             </h3>
@@ -109,6 +129,13 @@
                             </select>
                         </div>
                     </div>
+
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-lg font-bold mb-2 text-blue-300">Pin Location on Map</label>
+                        <div id="map" class="h-[400px] w-full rounded-xl border border-white/20 shadow-inner"></div>
+                        <input type="hidden" id="lat" name="lat">
+                        <input type="hidden" id="lng" name="lng">
+                    </div>
                 </div>
 
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-2xl font-black py-6 rounded-2xl shadow-2xl transition-all transform hover:scale-[1.01]">
@@ -122,6 +149,7 @@
             <a href="#track" class="text-white text-4xl"><i class="fas fa-chevron-down"></i></a>
         </div>
     </main>
+    <hr style="color: black;">
 
     <div id="track" class="full-screen">
         <div class="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full max-w-7xl">
@@ -179,9 +207,37 @@
         </div>
     </div>
 
-    <footer class="bg-black/80 py-10 text-center">
-        <p class="text-sm opacity-50 font-bold uppercase tracking-widest">&copy; 2026 Urban Safety Management System.</p>
-    </footer>
+    <footer class="bg-black/90 pt-16 pb-10 text-center border-t border-white/10 mt-20">
+    <div class="container mx-auto px-4 reveal-footer" id="footerProfile">
+        <div class="flex flex-col items-center mb-10">
+            <div class="w-32 h-32 rounded-full border-4 border-blue-500 overflow-hidden mb-4 shadow-2xl">
+                <img src="{{ url_for('static', filename='assets/YASH.jpeg') }}" alt="Yash Gupta" class="w-full h-full object-cover">
+            </div>
+            
+            <h2 class="text-3xl font-black tracking-tight mb-2">YASH GUPTA</h2>
+            <p class="text-blue-400 font-medium mb-6 uppercase tracking-widest text-sm">Full Stack Developer & AI Enthusiast</p>
+            
+            <h3 class="text-xl font-bold mb-4">Get in Touch</h3>
+            <div class="flex space-x-8 justify-center mb-10">
+                <a href="https://github.com/yashstack-bot" target="_blank" class="text-4xl hover:text-blue-400 transition-colors">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/yash-gupta-423820363" target="_blank" class="text-4xl hover:text-blue-400 transition-colors">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="mailto:gyash7068@gmail.com" class="text-4xl hover:text-blue-400 transition-colors">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="border-t border-white/10 pt-8">
+            <p class="text-xs opacity-50 font-bold uppercase tracking-widest">
+                &copy; 2026 Urban Safety Management System.
+            </p>
+        </div>
+    </div>
+</footer>
 
     <script src="static/js/script.js"></script>
 </body>
