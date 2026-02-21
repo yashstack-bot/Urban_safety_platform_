@@ -1,0 +1,27 @@
+
+    body {
+        /* Soft urban gradient background */
+        background: radial-gradient(circle at top right, #bfd3e8, #d9e2ec);
+        background-attachment: fixed;
+    }
+
+    /* Floating card animation for the report section */
+    #report {
+        transition: transform 0.3s ease, shadow 0.3s ease;
+    }
+    #report:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Custom scrollbar for a modern look */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f3cece;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #1e3a8a;
+        border-radius: 10px;
+    }
