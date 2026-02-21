@@ -4,7 +4,7 @@
  */
 
 // 1. Configuration
-const API_BASE_URL = 'http://127.0.0.1:5000';
+const API_BASE_URL = 'https://urban-safety-platform.onrender.com';
 
 /**
  * 2. Map Initialization & Dynamic Analytics
