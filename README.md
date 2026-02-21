@@ -1,0 +1,2 @@
+# Urban_safety_platform
+Urban Safe is a comprehensive digital platform designed to bridge the gap between citizens and city officials by providing a transparent, real-time mechanism for reporting and tracking urban safety hazards. Built as a data-driven solution, it empowers communities to identify issues like broken streetlights, damaged roads, and unsafe crossings while allowing authorities to monitor improvements through live analytics.
