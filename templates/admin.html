@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Authority Dashboard | Urban Safe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #0f172a; color: white; padding: 2rem; font-family: sans-serif; }
+        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto">
+        <h1 class="text-4xl font-bold mb-8 text-blue-400">Authority Analytics Dashboard</h1>
+        
+        <div class="glass p-8 overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-white/20 text-blue-300">
+                        <th class="p-4">Tracking ID</th>
+                        <th class="p-4">Issue</th>
+                        <th class="p-4">Area</th>
+                        <th class="p-4">Status</th>
+                        <th class="p-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr class="border-b border-white/5 hover:bg-white/5">
+                        <td class="p-4">{{ report.tracking_id }}</td>
+                        <td class="p-4">{{ report.issue_type }}</td>
+                        <td class="p-4">{{ report.area }}</td>
+                        <td class="p-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold 
+                                {% if report.status == 'Reported' %} bg-green-600 
+                                {% elif report.status == 'Under Review' %} bg-blue-600 
+                                {% else %} bg-orange-600 {% endif %}">
+                                {{ report.status }}
+                            </span>
+                        </td>
+                        <td class="p-4">
+                            <button onclick="updateStatus({{ report.id }}, 'Under Review')" class="text-xs bg-blue-500 hover:bg-blue-400 p-2 rounded">Review</button>
+                            <button onclick="updateStatus({{ report.id }}, 'Assigned')" class="text-xs bg-orange-500 hover:bg-orange-400 p-2 rounded ml-2">Assign</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function updateStatus(id, newStatus) {
+            const response = await fetch(`/api/update-status/${id}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({new_status: newStatus})
+            });
+            if (response.ok) location.reload();
+        }
+    </script>
+</body>
+</html>
